@@ -28,39 +28,41 @@
     <div id="posts"></div>
 
     <script>
-        // URL do feed RSS do blog
-        const feedUrl = 'https://docsvaticanosegundo.blogspot.com/feeds/posts/default?alt=rss';
+        // URL do feed JSON do blog
+        const feedUrl = 'https://docsvaticanosegundo.blogspot.com/feeds/posts/default?alt=json';
 
         // Função para carregar e exibir as postagens
         async function loadPosts() {
-            const response = await fetch(feedUrl);
-            const text = await response.text();
-            const parser = new DOMParser();
-            const xml = parser.parseFromString(text, 'application/xml');
-            const items = xml.querySelectorAll('item');
-            const postsContainer = document.getElementById('posts');
+            try {
+                const response = await fetch(feedUrl);
+                const data = await response.json();
+                const postsContainer = document.getElementById('posts');
+                const items = data.feed.entry;
 
-            items.forEach(item => {
-                const title = item.querySelector('title').textContent;
-                const link = item.querySelector('link').textContent;
-                const description = item.querySelector('description').textContent;
+                items.forEach(item => {
+                    const title = item.title.$t;
+                    const link = item.link.find(l => l.rel === 'alternate').href;
+                    const description = item.content.$t;
 
-                const postElement = document.createElement('div');
-                postElement.classList.add('post');
+                    const postElement = document.createElement('div');
+                    postElement.classList.add('post');
 
-                const postTitle = document.createElement('h2');
-                const postLink = document.createElement('a');
-                postLink.href = link;
-                postLink.textContent = title;
-                postTitle.appendChild(postLink);
+                    const postTitle = document.createElement('h2');
+                    const postLink = document.createElement('a');
+                    postLink.href = link;
+                    postLink.textContent = title;
+                    postTitle.appendChild(postLink);
 
-                const postDescription = document.createElement('p');
-                postDescription.innerHTML = description;
+                    const postDescription = document.createElement('p');
+                    postDescription.innerHTML = description;
 
-                postElement.appendChild(postTitle);
-                postElement.appendChild(postDescription);
-                postsContainer.appendChild(postElement);
-            });
+                    postElement.appendChild(postTitle);
+                    postElement.appendChild(postDescription);
+                    postsContainer.appendChild(postElement);
+                });
+            } catch (error) {
+                console.error('Erro ao carregar as postagens:', error);
+            }
         }
 
         // Carregar as postagens ao carregar a página
