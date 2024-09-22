@@ -28,13 +28,14 @@
     <div id="posts"></div>
 
     <script>
-        // URL do feed JSON do blog
+        // URL do feed JSON do blog via proxy para evitar CORS
+        const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
         const feedUrl = 'https://docsvaticanosegundo.blogspot.com/feeds/posts/default?alt=json';
 
         // Função para carregar e exibir as postagens
         async function loadPosts() {
             try {
-                const response = await fetch(feedUrl);
+                const response = await fetch(proxyUrl + feedUrl);
                 const data = await response.json();
                 const postsContainer = document.getElementById('posts');
                 const items = data.feed.entry;
